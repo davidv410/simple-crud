@@ -11,7 +11,7 @@ List<DrinkDto> drinks = [
         new DateOnly(2024, 2, 29)
     ),
     new(
-        1,
+        2,
         "Monster",
         "Ultra",
         2.55M,
@@ -36,6 +36,21 @@ app.MapPost("/drinks", (CreateDrinkDto newDrink) =>
     drinks.Add(drink);
 
     return Results.Ok(drink);
+});
+
+app.MapPut("/drinks/{id}", (int id, UpdateDrinkDto updateDrink) =>
+{
+    var index = drinks.FindIndex(drink => drink.Id == id);
+    
+    drinks[index] = new DrinkDto(
+        id,
+        updateDrink.Name,
+        updateDrink.Flavour,
+        updateDrink.Price,
+        updateDrink.ReleaseDate
+    );
+
+    return Results.NoContent();
 });
 
 app.Run();
