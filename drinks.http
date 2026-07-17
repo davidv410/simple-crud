@@ -1,0 +1,4 @@
+GET http://localhost:5033/drinks
+
+###
+GET http://localhost:5033/drinks/1
