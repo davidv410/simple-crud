@@ -23,4 +23,19 @@ app.MapGet("/drinks", () => drinks);
 
 app.MapGet("/drinks/{id}", (int id) => drinks.Find(drink => drink.Id == id));
 
+app.MapPost("/drinks", (CreateDrinkDto newDrink) =>
+{
+    DrinkDto drink = new(
+        drinks.Count + 1,
+        newDrink.Name,
+        newDrink.Flavour,
+        newDrink.Price,
+        newDrink.ReleaseDate
+    );
+
+    drinks.Add(drink);
+
+    return Results.Ok(drink);
+});
+
 app.Run();
