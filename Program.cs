@@ -21,7 +21,12 @@ List<DrinkDto> drinks = [
 
 app.MapGet("/drinks", () => drinks);
 
-app.MapGet("/drinks/{id}", (int id) => drinks.Find(drink => drink.Id == id));
+app.MapGet("/drinks/{id}", (int id) =>
+{
+    var game = drinks.Find(drink => drink.Id == id);
+
+    return game is null ? Results.NotFound() : Results.Ok(game);
+});
 
 app.MapPost("/drinks", (CreateDrinkDto newDrink) =>
 {
@@ -41,6 +46,11 @@ app.MapPost("/drinks", (CreateDrinkDto newDrink) =>
 app.MapPut("/drinks/{id}", (int id, UpdateDrinkDto updateDrink) =>
 {
     var index = drinks.FindIndex(drink => drink.Id == id);
+
+    if(index == -1)
+    {
+        return Results.NotFound();
+    }
     
     drinks[index] = new DrinkDto(
         id,
