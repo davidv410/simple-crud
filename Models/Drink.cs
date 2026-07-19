@@ -10,5 +10,7 @@ public class Drink
 
     public int FlavourId { get; set; }
 
+    public decimal Price { get; set; }
+
     public DateOnly ReleaseDate { get; set; }
 }
