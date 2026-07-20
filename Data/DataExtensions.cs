@@ -15,7 +15,7 @@ public static class DataExtensions
 
     public static void AddDrinksDb(this WebApplicationBuilder builder)
     {
-        var connString = "Data Source=Drinks.db";
+        var connString = builder.Configuration.GetConnectionString("DrinkStore");
         builder.Services.AddSqlite<DrinksContext>(
             connString,
             optionsAction: options => options.UseSeeding((context, _) =>
