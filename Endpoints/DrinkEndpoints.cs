@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using SimpleCrud.Data;
 using SimpleCrud.Dtos;
 using SimpleCrud.Models;
@@ -5,37 +6,39 @@ namespace SimpleCrud.Endpoints;
 
 public static class DrinksEndpoints
 {
-    private static readonly List<DrinkDto> drinks = [
-        new(
-            1,
-            "Monster",
-            "Mango Loco",
-            2.55M,
-            new DateOnly(2024, 2, 29)
-        ),
-        new(
-            2,
-            "Monster",
-            "Ultra",
-            2.55M,
-            new DateOnly(2015, 2, 12)
-        )
-    ];
-
     public static void MapDrinksEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("/drinks");
 
-        group.MapGet("/", () => drinks);
+        group.MapGet("/", async (DrinksContext dbContext) 
+        => await dbContext.Drinks
+        .Include(drink => drink.Flavour)
+        .Select(drink => new DrinkSummaryDto(
+            drink.Id,
+            drink.Name,
+            drink.Flavour!.Name,
+            drink.Price,
+            drink.ReleaseDate
+        ))
+        .AsNoTracking()
+        .ToListAsync());
 
-        group.MapGet("/{id}", (int id) =>
+        group.MapGet("/{id}", async (int id, DrinksContext dbContext) =>
         {
-            var game = drinks.Find(drink => drink.Id == id);
+            var drink = await dbContext.Drinks.FindAsync(id);
 
-            return game is null ? Results.NotFound() : Results.Ok(game);
+            return drink is null ? Results.NotFound() : Results.Ok(
+                new DrinkDetailsDto(
+                    drink.Id,
+                    drink.Name,
+                    drink.FlavourId,
+                    drink.Price,
+                    drink.ReleaseDate
+                )
+            );
         });
 
-        group.MapPost("/", (CreateDrinkDto newDrink, DrinksContext dbContext) =>
+        group.MapPost("/", async (CreateDrinkDto newDrink, DrinksContext dbContext) =>
         {
             Drink drink = new()
             {
@@ -46,7 +49,7 @@ public static class DrinksEndpoints
             };
 
             dbContext.Drinks.Add(drink);
-            dbContext.SaveChanges();
+            await dbContext.SaveChangesAsync();
 
             DrinkDetailsDto drinkDto = new(
                 drink.Id,
@@ -59,29 +62,28 @@ public static class DrinksEndpoints
             return Results.Ok(drinkDto);
         });
 
-        group.MapPut("/{id}", (int id, UpdateDrinkDto updateDrink) =>
+        group.MapPut("/{id}", async (int id, UpdateDrinkDto updateDrink, DrinksContext dbContext) =>
         {
-            var index = drinks.FindIndex(drink => drink.Id == id);
+            var existingGame = await dbContext.Drinks.FindAsync(id);
 
-            if(index == -1)
+            if(existingGame is null)
             {
                 return Results.NotFound();
             }
             
-            drinks[index] = new DrinkDto(
-                id,
-                updateDrink.Name,
-                updateDrink.Flavour,
-                updateDrink.Price,
-                updateDrink.ReleaseDate
-            );
+            existingGame.Name = updateDrink.Name;
+            existingGame.FlavourId = updateDrink.FlavourId;
+            existingGame.Price = updateDrink.Price;
+            existingGame.ReleaseDate = updateDrink.ReleaseDate;
+
+            await  dbContext.SaveChangesAsync();
 
             return Results.NoContent();
         });
 
-        group.MapDelete("/{id}", (int id) =>
+        group.MapDelete("/{id}", async (int id, DrinksContext dbContext) =>
         {
-            drinks.RemoveAll(drink => drink.Id == id);
+            await dbContext.Drinks.Where(drink => drink.Id == id).ExecuteDeleteAsync();
 
             return Results.NoContent();
         });

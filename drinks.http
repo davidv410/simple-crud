@@ -1,15 +1,15 @@
 GET http://localhost:5033/drinks
 
 ###
-GET http://localhost:5033/drinks/2
+GET http://localhost:5033/drinks/3
 
 ###
 POST http://localhost:5033/drinks
 Content-Type: application/json
 
 {
-    "name": "Monster",
-    "flavourId": 5,
+    "name": "Coca",
+    "flavourId": 4,
     "price": 2.55,
     "releaseDate": "2022-05-10"
 }
@@ -19,8 +19,8 @@ PUT http://localhost:5033/drinks/2
 Content-Type: application/json
 
 {
-    "name": "Montster",
-    "flavour": "Ultra purple",
+    "name": "Monster",
+    "flavourId": 2,
     "price": 2.55,
     "releaseDate": "2015-02-12"
 }

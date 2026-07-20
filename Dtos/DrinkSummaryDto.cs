@@ -1,6 +1,6 @@
 namespace SimpleCrud.Dtos;
 
-public record DrinkDto(
+public record DrinkSummaryDto(
     int Id,
     string Name,
     string Flavour,
