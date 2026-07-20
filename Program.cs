@@ -9,6 +9,7 @@ builder.AddDrinksDb();
 var app = builder.Build();
 
 app.MapDrinksEndpoints();
+app.MapFlavoursEndpoints();
 
 app.MigrateDb();
 
