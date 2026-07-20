@@ -1,4 +1,6 @@
+using SimpleCrud.Data;
 using SimpleCrud.Dtos;
+using SimpleCrud.Models;
 namespace SimpleCrud.Endpoints;
 
 public static class DrinksEndpoints
@@ -33,19 +35,28 @@ public static class DrinksEndpoints
             return game is null ? Results.NotFound() : Results.Ok(game);
         });
 
-        group.MapPost("/", (CreateDrinkDto newDrink) =>
+        group.MapPost("/", (CreateDrinkDto newDrink, DrinksContext dbContext) =>
         {
-            DrinkDto drink = new(
-                drinks.Count + 1,
-                newDrink.Name,
-                newDrink.Flavour,
-                newDrink.Price,
-                newDrink.ReleaseDate
+            Drink drink = new()
+            {
+                Name = newDrink.Name,
+                FlavourId = newDrink.FlavourId,
+                Price = newDrink.Price,
+                ReleaseDate = newDrink.ReleaseDate
+            };
+
+            dbContext.Drinks.Add(drink);
+            dbContext.SaveChanges();
+
+            DrinkDetailsDto drinkDto = new(
+                drink.Id,
+                drink.Name,
+                drink.FlavourId,
+                drink.Price,
+                drink.ReleaseDate
             );
 
-            drinks.Add(drink);
-
-            return Results.Ok(drink);
+            return Results.Ok(drinkDto);
         });
 
         group.MapPut("/{id}", (int id, UpdateDrinkDto updateDrink) =>

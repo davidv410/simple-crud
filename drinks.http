@@ -8,8 +8,8 @@ POST http://localhost:5033/drinks
 Content-Type: application/json
 
 {
-    "name": "Montster",
-    "flavour": "Wild berry",
+    "name": "Monster",
+    "flavourId": 5,
     "price": 2.55,
     "releaseDate": "2022-05-10"
 }
